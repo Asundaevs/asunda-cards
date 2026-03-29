@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>Asunda Autos | Digital Service Card</title>
-    <meta name="description" content="Official Digital Service Card for East African motorists. 32-point professional vehicle inspection for KES 10. Stay on budget, stay safe.">
-    <meta name="keywords" content="Kenya mechanic, digital service card, Asunda Autos, M-Pesa car service, East Africa garage">
+    <meta name="description" content="Official Digital Service Card for East African motorists. Comprehensive 32-point professional vehicle inspection. Stay on budget, stay safe.">
+    <meta name="keywords" content="Kenya mechanic, digital service card, Asunda Autos, M-Pesa car service, East Africa garage, Nakuru, Nairobi">
 
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "AutoRepair",
       "name": "Asunda Autos",
-      "description": "Digital Garage and Automotive Specialist in Kenya",
-      "areaServed": "East Africa",
+      "description": "Digital Garage and Automotive Specialist in East Africa",
+      "areaServed": "Kenya",
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "Digital Service Records",
@@ -128,6 +128,8 @@
                     <button class="ignore-btn" onclick="document.getElementById('parts-warning').style.display='none'">Ignore</button>
                 </div>
                 
+                <label style="margin-top:20px;">Service Schedule & Notes</label>
+                <input type="text" id="next_service" placeholder="NEXT SERVICE DUE (e.g. 320,000 KM or Oct 2026)" style="font-weight:bold;">
                 <textarea id="recommendations" placeholder="Mechanic Recommendations & Notes..." style="height: 100px;"></textarea>
 
                 <div class="qr-placeholder">SCAN TO SYNC</div>
@@ -167,7 +169,7 @@
             "Shock Absorbers", "Suspension Bushings", "Tyre Condition", "Tyre Pressure", "Spare Tyre Status"
         ];
 
-        // Identify indices that should trigger the OBD2 upsell (24, 25, 26)
+        // Identify indices that should trigger the OBD2 upsell (24: Check Engine, 25: Dashboard Lights, 26: OBD2 Scan)
         const diagnosticTriggers = [24, 25, 26]; 
 
         function initChecklist() {
@@ -216,12 +218,13 @@
             window.scrollTo(0,0);
         }
 
-        // Payment & Print Logic
+        // Payment & IntaSend Database Logic
         function handlePayment(amt) {
-            const plate = document.getElementById('plate').value || "Vehicle";
+            const plate = document.getElementById('plate').value || "NO-PLATE";
+            const cleanPlate = plate.toUpperCase().replace(/\s+/g, ''); // e.g. "KDJ 123A" becomes "KDJ123A"
             
             const intasend = new window.IntaSend({
-                publicAPIKey: "ISPubKey_live_0fab05af-8805-4d99-8619-dbf0df5b7529", // <--- PASTE YOUR KEY HERE
+                publicAPIKey: "ISPubKey_live_0fab05af-8805-4d99-8619-dbf0df5b7529", // <--- PASTE YOUR LIVE INTASEND KEY HERE
                 live: true 
             });
 
@@ -237,6 +240,7 @@
             .run({
                 amount: amt,
                 currency: "KES",
+                api_ref: cleanPlate, // Maps directly to your IntaSend Dashboard for searchable history!
                 method: "M-PESA"
             });
         }
