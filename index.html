@@ -1,1 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Asunda Autos | Digital Service Card</title>
+    <meta name="description" content="Official Digital Service Card for East African motorists. 32-point professional vehicle inspection for KES 10. Stay on budget, stay safe.">
+    <meta name="keywords" content="Kenya mechanic, digital service card, Asunda Autos, M-Pesa car service, East Africa garage">
 
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AutoRepair",
+      "name": "Asunda Autos",
+      "description": "Digital Garage and Automotive Specialist in Kenya",
+      "areaServed": "East Africa",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Digital Service Records",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Basic Digital Card Sync" }, "price": "10", "priceCurrency": "KES" },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Pro Downloadable Report" }, "price": "50", "priceCurrency": "KES" }
+        ]
+      }
+    }
+    </script>
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Asunda Cards','short_name':'Asunda','start_url':'/','display':'standalone','background_color':'#ffffff','theme_color':'#1a1a1a'}">
+
+    <script src="https://unpkg.com/intasend-inlinejs-sdk@3.0.4/build/intasend-inline.js"></script>
+
+    <style>
+        :root { --primary: #0066ff; --success: #28a745; --warning: #ffcc00; --danger: #dc3545; --dark: #1a1a1a; --light: #f4f7f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: var(--light); color: var(--dark); padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        
+        /* HEADER & SMART LOGO */
+        header { background: var(--dark); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .logo-box { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .logo-icon { width: 38px; height: 38px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; color: white; letter-spacing: -1px;}
+        .logo-text { font-size: 24px; font-weight: 800; letter-spacing: -1px; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+        .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
+        
+        /* INPUTS & FORMS */
+        label { display: block; font-size: 12px; font-weight: 700; color: #888; margin-bottom: 5px; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px; font-size: 16px; background: #fafafa; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        
+        /* CHECKLIST */
+        .check-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 12px 0; }
+        .check-label { font-size: 14px; font-weight: 600; }
+        .status-btn { padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; background: white; cursor: pointer; width: 120px;}
+        
+        /* DYNAMIC ALERTS */
+        .alert-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; border: 1px solid #ffeeba; display: flex; justify-content: space-between; align-items: center; }
+        .upsell-box { background: #e2eefd; color: #004085; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; border: 1px solid #b8daff; }
+        .ignore-btn { background: none; border: none; color: #856404; font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: underline; }
+
+        /* BUTTONS */
+        .btn { display: block; width: 100%; padding: 18px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; transition: 0.2s; text-decoration: none; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-wa { background: #25D366; color: white; position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-decoration: none; z-index: 1000;}
+
+        .hidden { display: none !important; }
+
+        /* PRINT STYLES (Manual Garage Mode) */
+        @media print {
+            .no-print, .btn, .btn-wa, header { display: none !important; }
+            body { background: white; padding: 0; color: black; }
+            .container { max-width: 100%; padding: 0; }
+            .card { box-shadow: none; border: 1px solid #000; padding: 15px; border-radius: 0; }
+            .check-grid { border-bottom: 1px solid #ccc; padding: 4px 0; }
+            .status-btn { border: none; appearance: none; background: transparent; font-weight: bold; }
+            /* QR Placeholder for Print */
+            .qr-placeholder { display: block !important; width: 100px; height: 100px; border: 2px dashed #000; margin: 20px auto; text-align: center; line-height: 100px; font-size: 10px; font-weight: bold; }
+            #print-header { display: block !important; text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 24px;}
+        }
+        .qr-placeholder, #print-header { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-box">
+            <div class="logo-icon">A</div>
+            <div class="logo-text">ASUNDA <span style="color:var(--primary)">AUTOS</span></div>
+        </div>
+        <p style="font-size:10px; opacity:0.8; margin-top:5px; letter-spacing: 1px;">EAST AFRICAN DIGITAL GARAGE</p>
+    </header>
+
+    <div class="container">
+        
+        <div id="home-view">
+            <div class="card" style="text-align:center;">
+                <h3 style="margin-bottom:20px;">Digital Service Portal</h3>
+                <button class="btn btn-main" style="margin-bottom:15px;" onclick="switchView('mech-view')">CREATE SERVICE CARD</button>
+                <button class="btn btn-outline" onclick="switchView('driver-view')">SEARCH VEHICLE HISTORY</button>
+            </div>
+        </div>
+
+        <div id="mech-view" class="hidden">
+            <div id="print-header">ASUNDA AUTOS - SERVICE CARD</div>
+            <div class="card">
+                <label>Vehicle Identity</label>
+                <input type="text" id="plate" placeholder="PLATE (e.g. KDJ 123A)" style="text-transform:uppercase; font-weight:bold; text-align:center;">
+                <input type="number" id="mileage" placeholder="CURRENT MILEAGE (KM)">
+                
+                <label style="margin-top:10px;">The Pro-32 Inspection</label>
+                <div id="checklist"></div>
+
+                <div id="obd2-upsell" class="upsell-box hidden no-print">
+                    <b>💡 Diagnostic Tip:</b> A dashboard warning was flagged. Need to know exactly what the code means? <br>
+                    <a href="https://asunda.autos" style="color:#004085; font-weight:bold; display:block; margin-top:5px;">Use Asunda OBD2 Decoder (KES 50) &rarr;</a>
+                </div>
+
+                <label style="margin-top:20px;">Materials & Logistics</label>
+                <input type="text" id="parts_vendor" placeholder="Parts Supplied By (e.g. Asunda Spares)" oninput="checkPartsVendor()">
+                
+                <div id="parts-warning" class="alert-box hidden no-print">
+                    <span>⚠️ Part not Asunda-Verified.</span>
+                    <button class="ignore-btn" onclick="document.getElementById('parts-warning').style.display='none'">Ignore</button>
+                </div>
+                
+                <textarea id="recommendations" placeholder="Mechanic Recommendations & Notes..." style="height: 100px;"></textarea>
+
+                <div class="qr-placeholder">SCAN TO SYNC</div>
+
+                <div class="no-print" style="background:#fefefe; padding:15px; border-radius:12px; border:1px solid #eee; margin-top: 15px;">
+                    <p style="font-size:12px; margin-bottom:10px; color:#555;"><b>GENERATE CARD:</b> Choose action to proceed.</p>
+                    <button class="btn btn-main" onclick="handlePayment(10)">DIGITAL SYNC (KES 10)</button>
+                    <button class="btn btn-outline" style="margin-top:10px;" onclick="handlePayment(50)">PRO REPORT / PRINT (KES 50)</button>
+                </div>
+
+                <button class="btn no-print" onclick="switchView('home-view')" style="background:none; color:#888; margin-top:10px;">← Cancel</button>
+            </div>
+        </div>
+
+        <div id="driver-view" class="hidden">
+            <div class="card">
+                <h3 style="text-align:center; margin-bottom:15px;">Find Vehicle History</h3>
+                <input type="text" placeholder="ENTER PLATE NUMBER" style="text-align:center; font-size:20px; text-transform:uppercase; font-weight:bold;">
+                <button class="btn btn-main" onclick="alert('Searching Asunda Vault...')">SEARCH DATABASE</button>
+                <button class="btn" onclick="switchView('home-view')" style="background:none; color:#888; margin-top:10px;">← Back</button>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="https://wa.me/254115513320?text=Hello%20Asunda,%20I%20have%20a%20request%20regarding%20the%20Digital%20Service%20Card." class="btn-wa no-print" target="_blank">💬</a>
+
+    <script>
+        // The Pro-32 List
+        const points = [
+            "Engine Oil", "Oil Filter", "Air Filter", "Fuel Filter", "Spark Plugs", "Drive Belts", "Timing Belt", 
+            "Water Separator (Diesel)", "Glow Plugs (Diesel)", "Turbo/Intercooler Pipes", "Exhaust Smoke Status", 
+            "Coolant Level", "Brake Fluid", "Transmission Fluid", "Differential Oil", "Transfer Case Oil", 
+            "Front Brake Pads", "Rear Brake Pads", "Handbrake/Shoes", "Prop-Shaft U-Joint Greasing", 
+            "Chassis/Ball Joint Greasing", "CV Boots", "Battery Health", "Alternator Charge", 
+            "Check Engine Light Status", "Dashboard Warning Lights", "OBD2 System Scan", 
+            "Shock Absorbers", "Suspension Bushings", "Tyre Condition", "Tyre Pressure", "Spare Tyre Status"
+        ];
+
+        // Identify indices that should trigger the OBD2 upsell (24, 25, 26)
+        const diagnosticTriggers = [24, 25, 26]; 
+
+        function initChecklist() {
+            const container = document.getElementById('checklist');
+            points.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="check-grid">
+                        <span class="check-label">${index + 1}. ${item}</span>
+                        <select class="status-btn" onchange="checkDiagnostics(${index}, this.value)">
+                            <option value="ok">✅ OK</option>
+                            <option value="issue">⚠️ Issue</option>
+                            <option value="fixed">🔧 Fixed Today</option>
+                            <option value="na">➖ N/A</option>
+                        </select>
+                    </div>`;
+            });
+        }
+
+        // Soft Upsell Logic
+        function checkDiagnostics(index, value) {
+            if (diagnosticTriggers.includes(index)) {
+                const upsellBox = document.getElementById('obd2-upsell');
+                if (value === 'issue') {
+                    upsellBox.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Free Market Parts Logic
+        function checkPartsVendor() {
+            const input = document.getElementById('parts_vendor').value.toLowerCase();
+            const warningBox = document.getElementById('parts-warning');
+            
+            // If they type something, but it doesn't include "asunda", show warning
+            if (input.length > 2 && !input.includes('asunda')) {
+                warningBox.classList.remove('hidden');
+                warningBox.style.display = 'flex'; // Ensure it flexes if un-hidden
+            } else {
+                warningBox.classList.add('hidden');
+            }
+        }
+
+        function switchView(id) {
+            ['home-view', 'mech-view', 'driver-view'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        // Payment & Print Logic
+        function handlePayment(amt) {
+            const plate = document.getElementById('plate').value || "Vehicle";
+            
+            const intasend = new window.IntaSend({
+                publicAPIKey: "ISPubKey_live_0fab05af-8805-4d99-8619-dbf0df5b7529", // <--- PASTE YOUR KEY HERE
+                live: true 
+            });
+
+            intasend.on("COMPLETE", (results) => { 
+                alert(`Success! Digital Sync for ${plate} complete.`);
+                if(amt === 50) {
+                    window.print(); // Triggers the manual/PDF print view
+                }
+            })
+            .on("FAILED", (results) => { 
+                alert("Payment failed or cancelled. Please try again."); 
+            })
+            .run({
+                amount: amt,
+                currency: "KES",
+                method: "M-PESA"
+            });
+        }
+
+        // Boot up
+        initChecklist();
+    </script>
+</body>
+</html>
